@@ -53,18 +53,25 @@ When `vagrant up` is finished running, you will get your shell prompt back. At t
     $ vagrant up
   ```
 
-1. Connect to the virtual machine using command:
+2. Connect to the virtual machine using command:
 
   ```
     $ vagrant ssh
   ```
 
-2. Run your application within the VM
+3. Run the database initiator:
+
+  ```
+    $ python /vagrant/catalog/init_db.py
+  ```
+
+4. Run the application within the VM:
 
   ```
     $ python /vagrant/catalog/views.py
   ```
-3. Access and test your application by visiting [http://localhost:5000](http://localhost:5000).
+
+5. Access and test your application by visiting [http://localhost:5000](http://localhost:5000).
 
 
 ## Supporting Materials
