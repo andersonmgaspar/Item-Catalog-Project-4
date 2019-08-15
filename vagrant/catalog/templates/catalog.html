@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block title %}Item Catalog{% endblock title %}
+
+{% block content %}
+
+<div class="container-fluid">
+  <div class="row">
+    <nav class="col-md-2 d-none d-md-block bg-light sidebar">
+      <div class="sidebar-sticky">
+        <ul class="nav flex-column">
+          {% for category in categories %}
+          <li class="nav-item">
+            <a class="nav-link" href="{{url_for('showCategory', category_id = category.id)}}">
+              <span data-feather="box"></span>
+              {{category.name}}
+            </a>
+          </li>
+          {% endfor %}
+          <div class="w-100"><hr></div>
+          {%if 'username' in session %}
+            <a class="nav-link" href="{{url_for('saveCategory')}}">
+              <span data-feather="folder-plus"></span>
+              New Category
+            </a>
+          {% endif %}
+        </div>
+    </nav>
+
+    <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4">
+      <h2>Recent Itens</h2>
+      <div class="table-responsive">
+        <table class="table table-striped table-sm">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Category</th>
+              <th>date</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for item in items %}
+            <tr>
+              <td>{{item.name}}</td>
+              <td>{{item.category.name}}</td>
+              <td>{{item.date.strftime('%d-%m-%Y') }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        </div>
+    </main>
+  </div>
+</div>
+{% endblock content %}

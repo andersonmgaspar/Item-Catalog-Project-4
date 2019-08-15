@@ -1,0 +1,159 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+                               integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
+                               crossorigin="anonymous">
+
+        <title>{% block title %}{% endblock title %}</title>
+
+        <!--LOAD PRE-REQUISITES FOR GOOGLE SIGN IN -->
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+        <script src="https://apis.google.com/js/client:platform.js?onload=start" async defer></script>
+        <script>
+            function start() {
+                gapi.load('auth2', function() {
+                    auth2 = gapi.auth2.init({
+                        client_id: '689796014234-kj0nsso2t599k731blg47q5ropbkub7v.apps.googleusercontent.com',
+                    });
+                });
+                gapi.signin2.render('my-signin2', {
+                    'scope': 'profile email',
+                    'width': 120,
+                    'height': 40,
+                    'longtitle': false,
+                    'theme': 'dark',
+                    'display': 'inline-block',
+                    'vertical-align': 'middle',
+                });
+            }
+        </script>
+        <!-- END PRE-REQUISITES FOR GOOGLE SIGN IN -->
+
+
+        {% block head %}{% endblock head %}
+    </head>
+
+    <body>
+      <header>
+        <div class="collapse bg-dark" id="navbarHeader">
+          <div class="container">
+            <div class="row">
+              <div class="col-sm-8 col-md-7 py-4">
+                <h4 class="text-white">About</h4>
+                <p class="text-muted"> A test project to try CRUD funcionality
+                                       with some authentication controls.
+                                       Using Bootstrap in Frontend and Flask +
+                                       SQLAlchemy in the Backend</p>
+              </div>
+              <div class="col-sm-4 offset-md-1 py-4">
+                <h4 class="text-white">Contact</h4>
+                <ul class="list-unstyled">
+                  <li><a href="https://twitter.com/andyescapeplan" class="text-white">Follow on Twitter</a></li>
+                  <li><a href="mailto:andersonmgaspar@gmail.com" class="text-white">Email me</a></li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="navbar navbar-dark bg-dark shadow-sm">
+          <div class="container d-flex">
+            <a href="{{url_for('showCatalog')}}" class="navbar-brand d-flex align-items-center">
+              <strong>Music Catalog</strong>
+            </a>
+            <div class="offset-md-1">
+              <div class="row">
+
+
+                <!--GOOGLE NEW SIGN IN BUTTON-->
+                <div id="my-signin2" class="oauth2-space"></div>
+                <script>
+                    $('#my-signin2').click(function() {
+                        auth2.grantOfflineAccess().then(signInCallback);
+                    });
+                </script>
+                <!--END OF GOOGLE NEW SIGN IN BUTTON-->
+                <a href="#" onclick="signOut();">Sign out</a>
+                <script>
+                  function signOut() {
+                    var auth2 = gapi.auth2.getAuthInstance();
+                    auth2.signOut().then(function () {
+                      $.ajax({
+                          type: 'GET',
+                          url: '/logout',
+                          success: function(result) {
+                              // Handle or verify the server response.
+                              console.log('Sucess AJAX call ');
+                              window.location.href = "/";
+                          }
+                      });
+                      console.log('User signed out.');
+                    });
+                  }
+                </script>
+
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarHeader" aria-controls="navbarHeader" aria-expanded="false" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon"></span>
+                </button>
+                </div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      {% with messages = get_flashed_messages() %}
+          {% if messages %}
+              <div class="alert alert-info alert-dismissable animated fadeIn">
+                  {% for message in messages %}
+                  <a href="#" class="close" data-dismiss="alert" aria-label="close">×</a>
+                  <strong>{{ message }}</strong>
+                  {% endfor %}
+              </div>
+          {% endif %}
+      {% endwith %}
+
+        {% block content %}
+        {% endblock content %}
+
+        <script src="https://unpkg.com/feather-icons/dist/feather.min.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+        <script>
+          feather.replace()
+        </script>
+        <!--GOOGLE CALLBACK FUNCTION BEGIN-->
+        <script>
+            function signInCallback(authResult) {
+                if (authResult['code']) {
+                    // Hide the sign-in button
+                    $('#my-signin2').attr('style', 'display: none');
+                    // Send the code to the server
+                    $.ajax({
+                        type: 'POST',
+                        url: '/gconnect?state={{STATE}}',
+                        contentType: 'application/octet-stream; charset=utf-8',
+                        success: function(result) {
+                            // Handle or verify the server response.
+                            console.log('Sucess AJAX call ' + result);
+                            if (result) {
+                                window.location.href = "/";
+                            }
+                            else if (authResult['error']) {
+                                // Writes on the browser console the error message
+                                console.log('There was an error: ' + authResult['error']);
+                            }
+                        },
+                        processData: false,
+                        data: authResult['code']
+                    });
+                }
+                else {
+                    $('#result').html('Failed to make a server-side call. Check your configuration and console.')
+                }
+            }
+        </script>
+        <!--GOOGLE CALLBACK FUNCTION ENDS-->
+    </body>
+</html>
