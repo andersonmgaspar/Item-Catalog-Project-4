@@ -74,7 +74,7 @@ def get_user_id(email):
     try:
         user = db.session.query(User).filter_by(email=email).first()
         return user.id
-    except:
+    except BaseException:
         print("NO USER FOUND!")
         return None
 
@@ -294,19 +294,26 @@ def saveItem(category_id):
 def deleteCategory(category_id):
     categoryToDelete = (db.session.query(Category)
                         .filter_by(id=category_id).one())
-    db.session.delete(categoryToDelete)
-    db.session.commit()
-    return redirect(url_for('showCatalog'))
-
+    if login_session['user_id'] == categoryToDelete.user_id:
+        db.session.delete(categoryToDelete)
+        db.session.commit()
+        return redirect(url_for('showCatalog'))
+    else:
+        flash("You are not allowed to delete this category.")
+        return redirect(url_for('showCategory', category_id=category_id))
 
 # Delete a item from a category
 @app.route('/category/<int:category_id>/<int:item_id>/delete')
 @login_required
 def deleteItem(category_id, item_id):
     itemToDelete = db.session.query(Item).filter_by(id=item_id).one()
-    db.session.delete(itemToDelete)
-    db.session.commit()
-    return redirect(url_for('showCategory', category_id=category_id))
+    if login_session['user_id'] == itemToDelete.user_id:
+        db.session.delete(itemToDelete)
+        db.session.commit()
+        return redirect(url_for('showCategory', category_id=category_id))
+    else:
+        flash("You are not allowed to delete this item.")
+        return redirect(url_for('showCategory', category_id=category_id))
 
 
 # Edit a item from a category
@@ -316,16 +323,20 @@ def deleteItem(category_id, item_id):
 def editItem(category_id, item_id):
     editedItem = db.session.query(Item).filter_by(id=item_id).one()
     if request.method == 'POST':
-        if request.form['name']:
-            editedItem.name = request.form['name']
-        if request.form['description']:
-            editedItem.description = request.form['description']
-        if request.form['picture']:
-            editedItem.price = request.form['picture']
-        editedItem.date = datetime.now()
-        db.session.add(editedItem)
-        db.session.commit()
-        return redirect(url_for('showCategory', category_id=category_id))
+        if login_session['user_id'] == editedItem.user_id:
+            if request.form['name']:
+                editedItem.name = request.form['name']
+            if request.form['description']:
+                editedItem.description = request.form['description']
+            if request.form['picture']:
+                editedItem.picture = request.form['picture']
+            editedItem.date = datetime.now()
+            db.session.add(editedItem)
+            db.session.commit()
+            return redirect(url_for('showCategory', category_id=category_id))
+        else:
+            flash("You are not allowed to edit this item.")
+            return redirect(url_for('showCategory', category_id=category_id))
     else:
         return render_template(
             'editItem.html', category_id=category_id, item=editedItem)
@@ -345,6 +356,13 @@ def categories_JSON():
 def itemsCategoryJSON(category_id):
     items = db.session.query(Item).filter_by(category_id=category_id).all()
     return jsonify(Items=[i.serialize for i in items])
+
+
+# Return a JSON of a item in the catalog
+@app.route('/item/<int:item_id>/JSON')
+def itemJSON(item_id):
+    item = db.session.query(Item).filter_by(id=item_id).first()
+    return jsonify(Items=[item.serialize])
 
 
 # Return a JSON of all the items in the catalog

@@ -65,15 +65,17 @@
             <div class="offset-md-1">
               <div class="row">
 
-
-                <!--GOOGLE NEW SIGN IN BUTTON-->
-                <div id="my-signin2" class="oauth2-space"></div>
-                <script>
-                    $('#my-signin2').click(function() {
-                        auth2.grantOfflineAccess().then(signInCallback);
-                    });
-                </script>
-                <!--END OF GOOGLE NEW SIGN IN BUTTON-->
+                {%if not session['username'] %}
+                  <!--GOOGLE NEW SIGN IN BUTTON-->
+                  <div id="my-signin2" class="oauth2-space"></div>
+                  <script>
+                      $('#my-signin2').click(function() {
+                          auth2.grantOfflineAccess().then(signInCallback);
+                      });
+                  </script>
+                  <!--END OF GOOGLE NEW SIGN IN BUTTON-->
+                {% else %}
+                <!--Logout  -->
                 <a href="#" onclick="signOut();">Sign out</a>
                 <script>
                   function signOut() {
@@ -92,7 +94,8 @@
                     });
                   }
                 </script>
-
+                <!--Logout  -->
+                {% endif %}
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarHeader" aria-controls="navbarHeader" aria-expanded="false" aria-label="Toggle navigation">
                   <span class="navbar-toggler-icon"></span>
                 </button>

@@ -3,8 +3,8 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, sessionmaker, backref
 from sqlalchemy import create_engine
 from passlib.apps import custom_app_context as pwd_context
-from itsdangerous import(TimedJSONWebSignatureSerializer as Serializer,
-                         BadSignature, SignatureExpired)
+from itsdangerous import (TimedJSONWebSignatureSerializer as Serializer,
+                          BadSignature, SignatureExpired)
 import random
 import string
 
@@ -82,7 +82,7 @@ class Item(Base):
     picture = Column(String(250))
     category_id = Column(Integer, ForeignKey('category.id'))
     category = relationship(Category, backref=backref('items',
-                            cascade='all, delete'))
+                                                      cascade='all, delete'))
     user_id = Column(Integer, ForeignKey('user.id'))
     user = relationship(User, backref="items")
 
@@ -96,6 +96,7 @@ class Item(Base):
             'picture': self.picture,
             'category': self.category.name
         }
+
 
 engine = create_engine('sqlite:///catalog.db')
 Base.metadata.create_all(engine)
