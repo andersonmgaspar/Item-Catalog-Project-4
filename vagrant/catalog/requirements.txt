@@ -1,0 +1,10 @@
+itsdangerous
+passlib
+SQLAlchemy
+Flask
+Flask-SQLAlchemy
+oauth2client
+requests>=2.12
+psycopg2
+Flask-Session
+httplib2
