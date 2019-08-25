@@ -25,17 +25,18 @@ app = Flask(__name__)
 # Load the server configuration file
 app.config.from_pyfile('app.cfg')
 # create a secret key
-app.secret_key = os.urandom(24)
+app.secret_key = "\x15\x92u~_\xb6\xd12,\xe3\xb6'L\xa1\x87"
 # Load the Database connection
 db = SQLAlchemy(app)
 state = ''.join(random.choice(string.ascii_uppercase + string.digits)
                 for x in xrange(32))
 
 g_client_secret_file = 'g_client_secret.json'
+BASE = os.path.dirname(os.path.abspath(__file__))
 
 # Getting my client_id from the g_client_secret_file
 client_id = json.loads(
-    open(g_client_secret_file, 'r').read())['web']['client_id']
+    open(os.path.join(BASE, g_client_secret_file), 'r').read())['web']['client_id']
 
 
 # Anotation to check if user is logged
@@ -380,5 +381,5 @@ def usersJSON():
 
 
 if __name__ == '__main__':
-    app.debug = True
+    app.debug = False
     app.run(host='0.0.0.0', port=5000)
