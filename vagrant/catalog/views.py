@@ -103,7 +103,8 @@ def gconnect():
     try:
         # Upgrade the authorization or one-time code into a credentials
         # object
-        oauth_flow = flow_from_clientsecrets(g_client_secret_file, scope='')
+        oauth_flow = flow_from_clientsecrets(os.path.join(BASE,
+                                             g_client_secret_file), scope='')
         # Define as 'postmessage' that this is the one-time code being
         # sent to the server
         oauth_flow.redirect_uri = 'postmessage'
@@ -268,7 +269,7 @@ def showCategory(category_id):
     category = db.session.query(Category).filter_by(id=category_id).one()
     items = db.session.query(Item).filter_by(category_id=category_id)
     return render_template(
-        'category.html', category=category, items=items)
+        'category.html', category=category, items=items, STATE=state)
 
 
 # Save a new item for a determined category
@@ -381,5 +382,5 @@ def usersJSON():
 
 
 if __name__ == '__main__':
-    app.debug = False
+    app.debug = True
     app.run(host='0.0.0.0', port=5000)
